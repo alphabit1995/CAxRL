@@ -1,0 +1,79 @@
+<Description>
+   ABAQUS/ABQcaeK rank 0 received the INTERRUPT signal
+
+</Description>
+
+<Context>
+   CAE
+</Context>
+
+<Callstack>
+  1)  ucrtbase.dll                perror                                  
+  2)  KERNELBASE.dll              CtrlRoutine                             
+  3)  KERNEL32.DLL                BaseThreadInitThunk                     
+  4)  ntdll.dll                   RtlUserThreadStart                      
+</Callstack>
+
+<Memory>
+   <Current>            0 GB </Current>
+   <Resident>           0 GB </Resident>
+   <Physical>          63 GB </Physical>
+   <Limit>              0 GB </Limit>
+   <Accessible>        63 GB </Accessible>
+   <Available>         36 GB </Available>
+   <Allocator>            DL </Allocator>
+</Memory>
+
+<Swap>
+       <Size>          66 GB </Size>
+       <Used>          31 GB </Used>
+       <Free>          34 GB </Free>
+</Swap>
+
+<Directories>
+  <current> C:\Users\basan\Documents\Thesis\Code\CAxRL\Abaqus_Integration </current> <free>      0 GB </free>   <used>    474 GB </used> 
+     <temp> C:\Users\basan\AppData\Local\Temp </temp>    <free>      0 GB </free>
+</Directories>
+
+<Installation>
+     <Version> Learning Edition 2023 2023 HF2 </Version>
+       <Build> 2023_03_20-20.15.03 RELr425 183417 </Build>
+</Installation>
+
+<Description>
+   ABQcaeK.exe / rank 0 / thread 0  encountered a system exception 0xC0000005 (EXCEPTION_ACCESS_VIOLATION)
+</Description>
+
+<Context>
+   CAE
+</Context>
+
+<Callstack>
+</Callstack>
+
+<Memory>
+   <Current>            0 GB </Current>
+   <Resident>           0 GB </Resident>
+   <Physical>          63 GB </Physical>
+   <Limit>              0 GB </Limit>
+   <Accessible>        63 GB </Accessible>
+   <Available>         36 GB </Available>
+   <Allocator>            DL </Allocator>
+</Memory>
+
+<Swap>
+       <Size>          66 GB </Size>
+       <Used>          31 GB </Used>
+       <Free>          34 GB </Free>
+</Swap>
+
+<Directories>
+  <current> C:\Users\basan\Documents\Thesis\Code\CAxRL\Abaqus_Integration </current> <free>      0 GB </free>   <used>    474 GB </used> 
+     <temp> C:\Users\basan\AppData\Local\Temp </temp>    <free>      0 GB </free>
+</Directories>
+
+<Installation>
+     <Version> Learning Edition 2023 2023 HF2 </Version>
+       <Build> 2023_03_20-20.15.03 RELr425 183417 </Build>
+</Installation>
+
