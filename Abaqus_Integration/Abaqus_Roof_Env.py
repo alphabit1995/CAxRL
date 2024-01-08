@@ -39,7 +39,7 @@ class Abaqus_Roof_Env(gym.Env):
         self.set_limit = 4
 
         self.step_counter = 0
-        self.position_list = []
+        self.position_list = [0 for i in range(self.number_of_supports_max)]
 
 
     def add_or_remove_support(self, support_number, action):
@@ -64,7 +64,6 @@ class Abaqus_Roof_Env(gym.Env):
             else:
                 print(f"Support already absent at position {support_number}")
                 status = False
-        
         else:
             print(f"In support action 2: Support status remaining the same at position {support_number}")
             status = True
@@ -84,8 +83,8 @@ class Abaqus_Roof_Env(gym.Env):
         print("Step Counter: " + str(self.step_counter))
         self.stress_reward = 0
         self.support_reward = 0
-        previous_state = [self.breadth] + self.position_list
-        print("Previous State:", previous_state)
+        #previous_state = [self.breadth] + self.position_list
+        #print("Previous State:", previous_state)
         print("Action: " + str(action))
         
         breadth_parameter_change = action[0]
@@ -127,12 +126,11 @@ class Abaqus_Roof_Env(gym.Env):
         # Print current state
         string_position_list = str(self.position_list)
         string_position_list = string_position_list.replace(" ", "")
-        print("Position List: " + string_position_list)
 
         ###########################################################################################
         # Calculate average stress on the roof
         ###########################################################################################
-        print(f"Value passed: Positions -- {self.position_list} Breadth -- {self.breadth}")
+        print(f"Value passed: Positions -- {string_position_list} Breadth -- {self.breadth}")
         x = check_output(f"abaqus cae -noGUI  Roof_catia_run.py -- {self.breadth} -- {string_position_list}", shell=True)
         pattern = r"b\'([0-9]+.[0-9]+)\\r\\n\'"
         result = re.match(pattern, str(x))
@@ -180,7 +178,7 @@ class Abaqus_Roof_Env(gym.Env):
 
         if self.step_counter == steps:
             done = True
-            check_output(f"abaqus cae script=Roof_ab_run.py -- {self.breadth} -- {string_position_list}", shell=True)
+            #check_output(f"abaqus cae script=Roof_ab_run.py -- {self.breadth} -- {string_position_list}", shell=True)
         else:
             done = False
 
@@ -189,17 +187,13 @@ class Abaqus_Roof_Env(gym.Env):
         self.step_counter += 1
 
         list_of_supports_enabled = [0 for i in range(self.number_of_supports_max)]
-        for i in range(len(self.position_list)):
-            if i+1 in self.position_list:
-                list_of_supports_enabled[i] = 1
-            else:
-                list_of_supports_enabled[i] = 0
+        for i in self.position_list:
+            list_of_supports_enabled[i-1] = 1
 
         total_state_space = [self.current_stress] + list_of_supports_enabled
+
         print("Total State Space: " + str(total_state_space))
-        print("List of supports enabled: " + str(list_of_supports_enabled))
- 
-        print("Current_State: " + str(self.current_stress) + " Breadth: " + str(self.breadth) + " Position List: " + str(self.position_list))
+        print("Current_State ~ Stress: " + str(self.current_stress) + " Breadth: " + str(self.breadth) + " Position List: " + str(self.position_list))
         print("Stress Reward: " + str(self.stress_reward) + " Support Reward: " + str(self.support_reward))
         print("Total Step Reward: " + str(self.total_step_reward))
 
@@ -233,6 +227,12 @@ class Abaqus_Roof_Env(gym.Env):
             else:
                 continue
         print("**********Position List: " + str(self.position_list))
-        self.state = self.current_stress
+
+        list_of_supports_enabled = [0 for i in range(self.number_of_supports_max)]
+        for i in self.position_list:
+            list_of_supports_enabled[i-1] = 1
+
+        self.state = [self.current_stress] + list_of_supports_enabled
+
         self.step_counter = 1
         return self.state

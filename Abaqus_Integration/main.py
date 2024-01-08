@@ -93,7 +93,7 @@ class Agent:
     
         for episode in range (1, num_episodes + 1):
             
-            print(f"------------------------------------------Running Episode {episode}----------------------------------------------")
+            print(f"------------------------------------------Running Episode in train{episode}----------------------------------------------")
             print("------------------------------------------------------------------------------------------------------------------")
             episode_reward = 0.0
             state = self.env.reset()
@@ -106,8 +106,8 @@ class Agent:
                 print("------------------------------------------------------------------------------------------------------------------")
                 print(f"Running Episode {episode}")
                 action_string = self.get_action_string(state)
-                print(f"Action List: {str(action_string)}")
                 next_state, step_reward, done, setting  = self.env.step(action_string, num_steps)
+                print(f"Action List: {str(action_string)}")
                 if next_state is None:
                     continue
                 episode_reward += step_reward
@@ -146,45 +146,53 @@ class Agent:
     def play(self, num_episodes, num_steps):
         self.dqn.load_model(MODEL_PATH)
         self.target_dqn.load_model(TARGET_MODEL_PATH)
-        maxreward_list=[]
+        episode_reward_list=[]
         best_reward = -200
         
         for episode in range(1, num_episodes + 1):
-            print(f"******************************************Running Episode {episode}**********************************************")
+            print(f"******************************************Running Episode in play{episode}**********************************************")
             print("******************************************************************************************************************")
-            total_reward = 0.0
-            self.epsilon = self.epsilon_min
+            episode_reward = 0.0
             state = self.env.reset()
             state = np.reshape(state, newshape=(1, -1)).astype(np.float32)
-            rewards = []
+            step_reward_list = []
+            setting_list = []
+            next_state_list = []
+            self.epsilon = self.epsilon_min
 
             while True:
+                print("------------------------------------------------------------------------------------------------------------------")
                 print(f"Running Episode {episode}")
-                action = self.get_action(state)
-                next_state, reward, done, setting= self.env.step(action, num_steps)
-                print(f"Next State: {str(next_state)}; Step Reward:  {str(reward)}; Done: {str(done)}; Setting: {str(setting)}")
+                action = self.get_action_string(state)
+                next_state, step_reward, done, setting  = self.env.step(action, num_steps)
                 if next_state is None:
                     continue
+                episode_reward += step_reward
+                print("Episode Reward: " + str(episode_reward))
+                next_state_list.append(next_state)
                 next_state = np.reshape(next_state, newshape=(1, -1)).astype(np.float32)
 
-                total_reward += reward
-                print("Episode Reward: " + str(total_reward))
-                rewards.append(reward)
+                step_reward_list.append(step_reward)
+                setting_list.append(setting)
+                
                 state = next_state
-                print("******************************************************************************************************************")
-                if done:
-                    maxreward_list.append(total_reward)
 
-                    if maxreward_list[-1] > best_reward:
-                        best_reward = maxreward_list[-1]
-                    
-                    print(f"Episode: {episode} Reward: {total_reward:6.2f} Epsilon: {self.epsilon:9.6f}")
-                    print("******************************************************************************************************************")
+                if done:
+                    episode_reward_list.append(episode_reward)
+
+                    if episode_reward_list[-1] > best_reward:
+                        best_reward = episode_reward_list[-1]
+
+                    episode_reward_list.append(episode_reward)
                     break
 
-            print("Episode rewards: " + str(maxreward_list))
-            self.plotData(maxreward_list, "Test_Rewards")
-    
+            print("Episode rewards: " + str(episode_reward_list))
+            self.plotData(episode_reward_list, "Test_Rewards")
+
+            print("Episode rewards: " + str(episode_reward_list))
+            self.plotData(episode_reward_list, "Test_Rewards")
+
+
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
         if self.epsilon > self.epsilon_min:
@@ -272,8 +280,8 @@ class Agent:
 
 def ProcessStart():
 
-    episodes = 5
-    steps = 2
+    episodes = 2
+    steps = 10
     replay_buffer_size = 10000
     train_start = 700
     gamma = 0.95
@@ -290,7 +298,7 @@ def ProcessStart():
 
     agent.train(episodes, steps)
 
-    #agent.play(num_episodes= 5, num_steps= 2)
+    agent.play(num_episodes= 2, num_steps= 10)
 
 if __name__ == "__main__":
 
