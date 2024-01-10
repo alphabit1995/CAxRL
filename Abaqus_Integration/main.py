@@ -16,11 +16,13 @@ from Abaqus_Env import Abaqus_Env
 from Abaqus_Roof_Env import Abaqus_Roof_Env
 import datetime
 
-PROJECT_PATH = os.path.abspath(r"C:\Users\basan\Documents\Thesis\Code\CAxRL\Abaqus_Integration")
-FILE_NAME_PREFIX = "23_10_2023_10_Episodes_10_Steps_2L_16N_1"
+PROJECT_PATH = os.path.abspath(os.curdir)
+FILE_NAME_PREFIX = "10_01_2024_10_2"
 MODELS_PATH = os.path.join(PROJECT_PATH, "Models")
-MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_dqn_cax.h5")
-TARGET_MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_target_dqn_cax.h5")
+BREADTH_MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_breadth_dqn_cax.h5")
+BREADTH_TARGET_MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_breadth_target_dqn_cax.h5")
+SUPPORT_MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_support_dqn_cax.h5")
+SUPPORT_TARGET_MODEL_PATH = os.path.join(MODELS_PATH, FILE_NAME_PREFIX + "_support_target_dqn_cax.h5")
 
 # Fixing random state for reproducibility
 #np.random.seed(42)
@@ -93,7 +95,7 @@ class Agent:
     
         for episode in range (1, num_episodes + 1):
             
-            print(f"------------------------------------------Running Episode in train{episode}----------------------------------------------")
+            print(f"------------------------------------------Running Episode {episode} in train----------------------------------------------")
             print("------------------------------------------------------------------------------------------------------------------")
             episode_reward = 0.0
             state = self.env.reset()
@@ -104,7 +106,7 @@ class Agent:
 
             while True:
                 print("------------------------------------------------------------------------------------------------------------------")
-                print(f"Running Episode {episode}")
+                print(f"Running Episode {episode} in train")
                 action_string = self.get_action_string(state)
                 next_state, step_reward, done, setting  = self.env.step(action_string, num_steps)
                 print(f"Action List: {str(action_string)}")
@@ -132,10 +134,12 @@ class Agent:
                     
                     break
         
-            print("Saving model...")
-            self.dqn.save_model(MODEL_PATH)
-            print("Saving target model...")
-            self.target_dqn.save_model(TARGET_MODEL_PATH)
+            print("Saving models...")
+            self.dqn_breadth.save_model(BREADTH_MODEL_PATH)
+            self.dqn_support.save_model(SUPPORT_MODEL_PATH)
+            print("Saving target models...")
+            self.target_dqn_breadth.save_model(BREADTH_TARGET_MODEL_PATH)
+            self.target_dqn_support.save_model(SUPPORT_TARGET_MODEL_PATH)
             print("------------------------------------------------------------------------------------------------------------------")
             print("------------------------------------------------------------------------------------------------------------------")
         
@@ -144,13 +148,16 @@ class Agent:
 
 
     def play(self, num_episodes, num_steps):
-        self.dqn.load_model(MODEL_PATH)
-        self.target_dqn.load_model(TARGET_MODEL_PATH)
+        print("Loading saved models...")
+        self.dqn_breadth.load_model(BREADTH_MODEL_PATH)
+        self.dqn_support.load_model(SUPPORT_MODEL_PATH)
+        self.target_dqn_breadth.load_model(BREADTH_TARGET_MODEL_PATH)
+        self.target_dqn_support.load_model(SUPPORT_TARGET_MODEL_PATH)
         episode_reward_list=[]
         best_reward = -200
         
         for episode in range(1, num_episodes + 1):
-            print(f"******************************************Running Episode in play{episode}**********************************************")
+            print(f"******************************************Running Episode {episode} in play**********************************************")
             print("******************************************************************************************************************")
             episode_reward = 0.0
             state = self.env.reset()
@@ -162,9 +169,10 @@ class Agent:
 
             while True:
                 print("------------------------------------------------------------------------------------------------------------------")
-                print(f"Running Episode {episode}")
+                print(f"Running Episode {episode} in play")
                 action = self.get_action_string(state)
                 next_state, step_reward, done, setting  = self.env.step(action, num_steps)
+                print(f"Next State: {str(next_state)}; Step Reward: {str(step_reward)}; Done: {str(done)}; Setting: {str(setting)}")
                 if next_state is None:
                     continue
                 episode_reward += step_reward
@@ -220,6 +228,7 @@ class Agent:
         q_values_next_support = self.target_dqn_support(states_next)
 
         for i in range(self.batch_size):
+            print(f"Debug message ~ a:{a} and i:{i}")
             a = actions[i] 
             done = dones[i]
             if done:
@@ -280,8 +289,8 @@ class Agent:
 
 def ProcessStart():
 
-    episodes = 2
-    steps = 10
+    episodes = 50
+    steps = 50
     replay_buffer_size = 10000
     train_start = 700
     gamma = 0.95
@@ -298,7 +307,7 @@ def ProcessStart():
 
     agent.train(episodes, steps)
 
-    agent.play(num_episodes= 2, num_steps= 10)
+    agent.play(num_episodes= 50, num_steps= 50)
 
 if __name__ == "__main__":
 

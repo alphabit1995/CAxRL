@@ -90,31 +90,7 @@ class Abaqus_Roof_Env(gym.Env):
         breadth_parameter_change = action[0]
 
         support_number, support_parameter_change = self.retrieve_support_number_and_action(action[1])
-        ###########################################################################################
-        # Breadth Parameter configuration
-        ###########################################################################################
 
-        # Increase breadth
-        if breadth_parameter_change == 0:
-            print("In breadth action 0: Increasing breadth")
-            if self.breadth == self.breadth_upper_limit:
-                self.breadth = self.breadth_upper_limit
-            else:
-                self.breadth += self.breadth_step
-
-        # Decrease breadth
-        elif breadth_parameter_change == 1:
-            print("In breadth 1: Decreasing breadth")
-            if self.breadth == self.breadth_lower_limit:
-                self.breadth = self.breadth_lower_limit
-            else:
-                self.breadth -= self.breadth_step
-        
-        # breadth bleib gleich
-        elif breadth_parameter_change == 2:
-            print("In breadth 2: Breadth remaining the same")
-            self.breadth = self.breadth
-        
         ###########################################################################################
         # Support Parameter configuration
         ###########################################################################################
@@ -122,6 +98,30 @@ class Abaqus_Roof_Env(gym.Env):
         if status == False:
             print("Trying another action...")
             return None, None, None, None
+
+        ###########################################################################################
+        # Breadth Parameter configuration
+        ###########################################################################################
+        # Increase breadth
+        if breadth_parameter_change == 0:
+            print("In breadth action 0: Increasing breadth")
+            self.breadth += self.breadth_step
+            print("Breadth higher limit breached. Resetting back to upper limit..")
+            if self.breadth == self.breadth_upper_limit:
+                self.breadth = self.breadth_upper_limit
+                
+        # Decrease breadth
+        elif breadth_parameter_change == 1:
+            print("In breadth 1: Decreasing breadth")
+            self.breadth -= self.breadth_step
+            print("Breadth lower limit breached. Resetting back to lower limit..")
+            if self.breadth == self.breadth_lower_limit:
+                self.breadth = self.breadth_lower_limit
+        
+        # breadth bleib gleich
+        elif breadth_parameter_change == 2:
+            print("In breadth 2: Breadth remaining the same")
+            self.breadth = self.breadth
         ###########################################################################################
         # Print current state
         string_position_list = str(self.position_list)
